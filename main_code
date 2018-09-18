@@ -1,0 +1,144 @@
+%11/20/2017
+%HW4
+%Connected Component Labeling
+
+clear all;
+clc;
+
+I = imread('Connected.bmp');
+[x,y] = size(I);
+Hist =zeros(1,256);
+
+%Scanning Image Pixels to create Histogram
+for x = 1:x
+        for j = 1:y
+            Hist(I(x,j)+1)=Hist(I(x,j)+1)+1;
+        end
+end
+
+Thresh =zeros(x,y);
+for i = 1:x
+        for j = 1:y
+            if I(i,j)>= 10
+                Thresh(i,j)=0;
+             else
+                Thresh(i,j)=1;
+             end
+        end
+end
+
+figure;
+subplot(2,2,1);
+imshow(I);
+title('Original Image');
+subplot(2,2,2)
+imshow(Thresh);
+title('Segemented Image');
+hold on;
+
+[m,n] = size(Thresh);
+c = zeros (m,n);
+component_num = 0;
+p = 1 : m * n;
+
+for i = 1 : m
+    for j = 1 : n
+      if ( i == 1 )
+        north = 0;
+      else
+        north = c(i-1,j);
+      end
+
+      if ( j == 1 )
+        west = 0;
+      else
+        west = c(i,j-1);
+      end
+
+      if ( Thresh(i,j) ~= 0 )
+
+        if ( north == 0 )
+
+          if ( west == 0 )
+            component_num = component_num + 1;
+            c(i,j) = component_num;
+          else
+            c(i,j) = west;
+          end
+
+        elseif ( north ~= 0 )
+
+          if ( west == 0 || west == north )
+            c(i,j) = north;
+          else
+            c(i,j) = min ( north, west );
+            if ( north < west )
+              p(west) = north;
+            else
+              p(north) = west;
+            end
+          end
+
+        end
+
+      end
+
+    end
+
+end
+  
+for component = component_num : -1 : 1
+    b = component;
+    while ( p(b) ~= b )
+      b = p(b);
+    end
+    p(component) = b;
+end
+
+q = zeros ( 1, component_num );
+  i = 0;
+  for component = 1 : component_num
+    if ( p(component) == component )
+      i = i + 1;
+      q(component) = i;
+    end
+  end
+
+  component_num = i;
+  
+  i = find ( c ~= 0 );
+  c(i) = q ( p ( c(i) ) );
+%Coloring the different Labelings with different Colors
+
+% Get a map of where the pixels with different 50 are.
+P4 = c == 4;
+P3 =c ==3;
+P2= c ==2;
+P1 = c ==1;
+% Create r, g, and b channels.
+redImage = c;
+greenImage = c;
+blueImage = c;
+% Change the colors for the pixels that are gray level 4,3,2,and 1.
+redImage(P4)= 1;
+greenImage(P4) = 0;
+blueImage(P4) = 0;
+
+redImage(P3)= 1;
+greenImage(P3) = 1;
+blueImage(P3) = 0;
+
+redImage(P2)= 0;
+greenImage(P2) = 1;
+blueImage(P2) = 0;
+
+redImage(P1)= 0;
+greenImage(P1) = 0;
+blueImage(P1) = 1;
+% Combine into a new RGB image.
+rgbImage = cat(3, redImage, greenImage, blueImage);
+
+subplot(2,2,[3 4])
+imshow(rgbImage);
+title('Component Connected Labeled Image');
+fprintf('\n The total number of components in the image = %.0f\n',component_num);
