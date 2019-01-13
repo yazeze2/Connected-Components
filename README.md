@@ -1,4 +1,4 @@
-# Connected-Components
+# Object Detection (Connected-Components)
 Counting Connected Components in an Image
 
 ![image](https://user-images.githubusercontent.com/32316270/45660628-4097a500-babf-11e8-9bf3-21c7e71e9991.png)
